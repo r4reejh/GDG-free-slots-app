@@ -1,3 +1,3 @@
 module.exports = {
-  url: "mongodb://127.0.0.1:27017/drill"
+  url: "mongodb://127.0.0.1:27017/free-slots"
 };
