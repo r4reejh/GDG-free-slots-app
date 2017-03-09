@@ -3,9 +3,12 @@ var unirest=require('unirest');
 var router = express.Router();
 
 
-var allSlots=[];
+var allSlots=['A2','B1','B2'];
+
 var User=require('../models/user');
 var Group=require('../models/group');
+
+
 router.get('/', function(req, res, next) {
   res.send('free-slots-backend-api');
 });
@@ -14,18 +17,26 @@ router.post('/register',function(req,res){
 	var d=req.body;
 	var user=new User();
 	user.reg=d.reg;
-	user.name=d.name;
+	//user.name=d.name;
 	unirest.post('https://myffcs.in:10443/campus/vellore/login').send({'regNo':d.reg,'psswd':d.psswd}).end(function(response){
 		unirest.post('https://myffcs.in:10443/campus/vellore/refresh').send({'regNo':d.reg,'psswd':d.psswd}).end(function(re){
 			var bo=re.body;
-			var len=bo.courses.length();
+			var len=bo.courses.length;
 			for(var i=0;i<len;i++){
 				user.slots.push(bo.courses[i].slot);
+				//console.log(bo.courses[i].slot);
+				if(i==len-1){
+						user.save(function(err,u){
+							calcFreeSlots(u);
+							if(err)
+							console.log(err);
+							console.log(u);
+							res.send(u.id);
+						});
+						//console.log(user);
+				}
 			}
-			user.save(function(err,doc){
-				calcFreeSlots(doc);
-				res.send(doc.id.toString());
-			});
+			
 		});
 	});
 	//ave user to database
@@ -35,6 +46,7 @@ router.post('/register',function(req,res){
 
 router.post('/create_group',function(req,res){
 	var d=req.body;
+	var admin=req.body.adminId;
 	var group=new Group();
 	group.name=d.name;
 	group.pending=d.members;
@@ -94,16 +106,25 @@ module.exports = router;
 //----------------METHODS-----------------------------------------------
 function calcFreeSlots(user){
 	var c=user.slots.join(" ");
-	c=c.replace('+',' ');
+	//console.log(c);
+	c=c.replace(/\+/g,' ');
+	//console.log(c);
 	var arr=c.split(' ');
+	console.log(arr);
 	var free=[];
 	allSlots.forEach(function(item){
-		if(arr.indexOf(item)<0)
-		free.push(item);
+		
 	});
-	user.freeslots=free;
-	user.save(function(err,doc){
-		if(err)
-		console.log(err);
-	});
+	for(var i=0;i<allSlots.length;i++){
+		if(arr.indexOf(allSlots[i])<0)
+		free.push(allSlots[i]);
+		if(i==allSlots.length-1){
+			user.freeslots=free;
+			user.save(function(err,doc){
+				if(err)
+				console.log(err);
+				console.log(doc);
+			});
+		}
+	}
 }
