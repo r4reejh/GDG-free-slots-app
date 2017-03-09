@@ -87,7 +87,7 @@ module.exports = router;
 
 
 //----------------METHODS-----------------------------------------------
-function calcFreeSlots(user,fn){
+function calcFreeSlots(user){
 	var c=user.slots.join(" ");
 	c=c.replace('+',' ');
 	var arr=c.split(' ');
