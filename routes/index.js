@@ -7,7 +7,7 @@ var allSlots=[];
 var User=require('../models/user');
 var Group=require('../models/group');
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.send('free-slots-backend-api');
 });
 
 router.post('/register',function(req,res){
@@ -39,6 +39,11 @@ router.post('/create_group',function(req,res){
 	group.name=d.name;
 	group.pending=d.members;
 	group.save(function(err,doc){
+		doc.members.forEach(function(item){
+			User.findOne({'reg':item},function(err,mem){
+				//sendNotification(mem.id);
+			});
+		});
 		User.findById(d.userId,function(err,doc2){
 			doc2.groups.push({'name':doc.name,'id':doc.id.toString()});
 		});

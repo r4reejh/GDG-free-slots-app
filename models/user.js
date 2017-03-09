@@ -4,10 +4,10 @@ var user=mongoose.Schema({
     id:{ type:Number , unique:true },
     name:{type:String},
     reg:{type:String},
-    groups:{type:Array},
-    slots:{type:Array},
-    freeslots:{type:Array}
+    groups:[],
+    slots:[],
+    freeslots:[]
 });
 
 
-module.exports=mongose.model('User',user);
+module.exports=mongoose.model('User',user);
