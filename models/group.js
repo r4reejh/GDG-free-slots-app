@@ -1,9 +1,10 @@
 var mongoose=require('mongoose');
 
 var group=mongoose.Schema({
+	admin:{type:String},
     name:{type:String},
-    id:{type:Number,unique:true},
-    members:{type:Array},
+    members:[],
+    freeslots:[],
     pending:[],
     lstup:{type:Date},
     reject:[]

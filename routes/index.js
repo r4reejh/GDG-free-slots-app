@@ -45,21 +45,25 @@ router.post('/register',function(req,res){
 });
 
 router.post('/create_group',function(req,res){
+	
 	var d=req.body;
-	var admin=req.body.adminId;
 	var group=new Group();
 	group.name=d.name;
 	group.pending=d.members;
+	group.admin=d.userId;
+	
+	User.findById(d.userId,function(err,userobj){
+		userobj.groups.push({'name':group.name.name,'id':group.id});
+		group.members.push({'u_id':userobj.id,'freeslots':userobj.freeslots});
+	});
+	
 	group.save(function(err,doc){
 		doc.members.forEach(function(item){
 			User.findOne({'reg':item},function(err,mem){
 				//sendNotification(mem.id);
 			});
 		});
-		User.findById(d.userId,function(err,doc2){
-			doc2.groups.push({'name':doc.name,'id':doc.id.toString()});
-		});
-		res.send(doc.id.toString());
+		res.send(doc.id);
 	});
 	//get members information
 	//sendNotification(...);
@@ -75,7 +79,7 @@ router.post('/respond',function(req,res){
 	User.findById(user,function(err,doc){
 		Group.findById(grp,function(err,doc){
 			if(response=='1')
-			grp.members.push(doc.reg);
+			grp.members.push({'u_id':doc.reg,'freeslots':doc.freeslots});
 			else if(response=='2')
 			grp.reject.push(doc.reg);
 			grp.pending=grp.pending.splice(grp.pending.indexOf(doc.reg),1);
@@ -88,6 +92,10 @@ router.post('/respond',function(req,res){
 	//send response as json to update app_local_database>groups
 });
 
+
+router.post('/group_update',function(req,res){
+	var version_date=req.body.lstupdate;
+});
 router.post('/message',function(req,res){
 	//recieve request as: {groupid:<data>,message:<code>}
 	//send back confirmation as <message received by server, pushed by server>
