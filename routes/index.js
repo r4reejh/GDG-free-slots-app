@@ -2,7 +2,10 @@ var express = require('express');
 var unirest=require('unirest');
 var router = express.Router();
 
+
+var allSlots=[];
 var User=require('../models/user');
+var Group=require('../models/group');
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
@@ -81,3 +84,21 @@ router.post('/group_info_update',function(req,res){
 router.post('')
 
 module.exports = router;
+
+
+//----------------METHODS-----------------------------------------------
+function calcFreeSlots(user,fn){
+	var c=user.slots.join(" ");
+	c=c.replace('+',' ');
+	var arr=c.split(' ');
+	var free=[];
+	allSlots.forEach(function(item){
+		if(arr.indexOf(item)<0)
+		free.push(item);
+	});
+	user.freeslots=free;
+	user.save(function(err,doc){
+		if(err)
+		console.log(err);
+	});
+}
