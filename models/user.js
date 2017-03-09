@@ -5,6 +5,7 @@ var user=mongoose.Schema({
     name:{type:String},
     reg:{type:String},
     groups:{type:Array},
+    slots:{type:Array},
     freeslots:{type:Array}
 });
 
