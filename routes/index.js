@@ -15,11 +15,19 @@ router.get('/', function(req, res, next) {
 
 router.post('/register',function(req,res){
 	var d=req.body;
-	var user=new User();
+	var user;
 	user.reg=d.reg;
 	//user.name=d.name;
-	unirest.post('https://myffcs.in:10443/campus/vellore/login').send({'regNo':d.reg,'psswd':d.psswd}).end(function(response){
+	User.findOne({'reg':d.reg},function(err,data){
+		if(data.length>0)
+		user=data;
+		else
+		user=new User();
+		
+		unirest.post('https://myffcs.in:10443/campus/vellore/login').send({'regNo':d.reg,'psswd':d.psswd}).end(function(response){
+		if(response.status.code=='0'){
 		unirest.post('https://myffcs.in:10443/campus/vellore/refresh').send({'regNo':d.reg,'psswd':d.psswd}).end(function(re){
+			if(re.body.length>6){
 			var bo=re.body;
 			var len=bo.courses.length;
 			for(var i=0;i<len;i++){
@@ -36,8 +44,17 @@ router.post('/register',function(req,res){
 						//console.log(user);
 				}
 			}
+		}
+		else{
+			res.send({'message':'failed'});
+		}
 			
 		});
+	}
+	else{
+		res.send({'message':'failed'});
+	}
+	});
 	});
 	//ave user to database
 	//get slots info
