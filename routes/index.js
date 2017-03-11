@@ -3,7 +3,7 @@ var unirest=require('unirest');
 var router = express.Router();
 
 
-var allSlots=['A2','B1','B2'];
+var allSlots=['A1','A2','B1','B2','C1','C2','D1','D2','E1','E2','F1','F2','TA1','TA2','TB1','TB2','TC1','TC2','TD1','TD2','TE1','TE2','TF1','TF2'];
 
 var User=require('../models/user');
 var Group=require('../models/group');
@@ -62,7 +62,7 @@ router.post('/register',function(req,res){
 });
 
 router.post('/create_group',function(req,res){
-	
+router.post('/create_group',function(req,res){
 	var d=req.body;
 	var group=new Group();
 	group.name=d.name;
