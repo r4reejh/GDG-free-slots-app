@@ -18,7 +18,7 @@ router.post('/register',function(req,res){
 	var d=req.body;
 	var user;
 	user.reg=d.reg;
-	user.name=d.name;
+	// user.name=d.name;
 	User.findOne({'reg':d.reg},function(err,data){
 		if(data.length>0)
 		user=data;
@@ -30,6 +30,7 @@ router.post('/register',function(req,res){
 			if(re.body.length>6){
 			var bo=re.body;
 			var len=bo.courses.length;
+			user.name = bo.name;
 			for(var i=0;i<len;i++){
 				user.slots.push(bo.courses[i].slot);
 				//console.log(bo.courses[i].slot);
