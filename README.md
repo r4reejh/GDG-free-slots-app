@@ -8,11 +8,11 @@ url: http://localhost:3000
 
 
 localhost:3000/register
-'''
+`
 request body: {name:'<name>',reg:'<regNo>',psswd:'<passwd>'}
 success response:{uid:'<mongouid>',message:'<success>'} STATUS:200
 error response:{error:'failed'} STATUS:500
-'''
+`
 
 /create_group
 request body:{name:'',members:[],admin:'<uid of admin>'}
