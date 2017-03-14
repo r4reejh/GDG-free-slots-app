@@ -1,7 +1,9 @@
 # GDG-free-slots-app
 ## All methods are POST
 ...
+
 url: http://localhost:3000
+
 ...
 
 
