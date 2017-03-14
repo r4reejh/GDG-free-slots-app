@@ -4,6 +4,7 @@ var router = express.Router();
 
 
 var allSlots=['A1','A2','B1','B2','C1','C2','D1','D2','E1','E2','F1','F2','TA1','TA2','TB1','TB2','TC1','TC2','TD1','TD2','TE1','TE2','TF1','TF2'];
+var timings={};
 
 var User=require('../models/user');
 var Group=require('../models/group');
@@ -159,5 +160,3 @@ function calcFreeSlots(user){
 		}
 	}
 }
-
-//-----------

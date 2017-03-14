@@ -29,9 +29,10 @@ faliure response:{error: 'failed'} STATUS:500
 ```
 request body:{groupId:'',lstup:<Date>}
 if Latest:
-  success response:{message:'latest'} STATUS:200
-  faliure response:{error: 'failed'} STATUS:500
+success response:{message:'latest'} STATUS:200
+faliure response:{error: 'failed'} STATUS:500
+
 if not Latest:
-  success response:{admin:'',name:'',members:[],freeslots:[],pending:[],lstup:<date>,reject:[]} STATUS 200
-  error response:{error:'failed'} STATUS:500
+success response:{admin:'',name:'',members:[],freeslots:[],pending:[],lstup:<date>,reject:[]} STATUS:200
+error response:{error:'failed'} STATUS:500
 ```
