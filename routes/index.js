@@ -17,13 +17,12 @@ router.post('/register',function(req,res){
 	var d=req.body;
 	var user;
 	user.reg=d.reg;
-	//user.name=d.name;
+	user.name=d.name;
 	User.findOne({'reg':d.reg},function(err,data){
 		if(data.length>0)
 		user=data;
 		else
 		user=new User();
-
 		unirest.post('https://myffcs.in:10443/campus/vellore/login').send({'regNo':d.reg,'psswd':d.psswd}).end(function(response){
 		if(response.status.code=='0'){
 		unirest.post('https://myffcs.in:10443/campus/vellore/refresh').send({'regNo':d.reg,'psswd':d.psswd}).end(function(re){
@@ -62,6 +61,7 @@ router.post('/register',function(req,res){
 	//get slots info
 	//calculate free slots
 });
+
 router.post('/create_group',function(req,res){
 	var d=req.body;
 	var group=new Group();
@@ -133,20 +133,7 @@ router.post('/group_update',function(req,res){
   });
 });
 
-
-router.post('/message',function(req,res){
-	//recieve request as: {groupid:<data>,message:<code>}
-	//send back confirmation as <message received by server, pushed by server>
-	//sendMessageNotification(...)
-});
-
-router.post('/group_info_update',function(req,res){
-	//receive request as: {}
-});
-
 module.exports = router;
-
-
 //----------------METHODS-----------------------------------------------
 function calcFreeSlots(user){
 	var c=user.slots.join(" ");
@@ -172,3 +159,5 @@ function calcFreeSlots(user){
 		}
 	}
 }
+
+//-----------
