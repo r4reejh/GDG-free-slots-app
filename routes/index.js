@@ -23,7 +23,7 @@ router.post('/register',function(req,res){
 		user=data;
 		else
 		user=new User();
-		
+
 		unirest.post('https://myffcs.in:10443/campus/vellore/login').send({'regNo':d.reg,'psswd':d.psswd}).end(function(response){
 		if(response.status.code=='0'){
 		unirest.post('https://myffcs.in:10443/campus/vellore/refresh').send({'regNo':d.reg,'psswd':d.psswd}).end(function(re){
@@ -46,12 +46,14 @@ router.post('/register',function(req,res){
 			}
 		}
 		else{
+      res.status(404);
 			res.send({'message':'failed'});
 		}
-			
+
 		});
 	}
 	else{
+    res.status(404);
 		res.send({'message':'failed'});
 	}
 	});
@@ -60,20 +62,18 @@ router.post('/register',function(req,res){
 	//get slots info
 	//calculate free slots
 });
-
-router.post('/create_group',function(req,res){
 router.post('/create_group',function(req,res){
 	var d=req.body;
 	var group=new Group();
 	group.name=d.name;
 	group.pending=d.members;
 	group.admin=d.userId;
-	
+
 	User.findById(d.userId,function(err,userobj){
 		userobj.groups.push({'name':group.name.name,'id':group.id});
 		group.members.push({'u_id':userobj.id,'freeslots':userobj.freeslots});
 	});
-	
+
 	group.save(function(err,doc){
 		doc.members.forEach(function(item){
 			User.findOne({'reg':item},function(err,mem){
@@ -93,13 +93,19 @@ router.post('/respond',function(req,res){
 	var user=req.body.userId;
 	var grp=req.body.groupId;
 	var response=req.body.response;
-	User.findById(user,function(err,doc){
-		Group.findById(grp,function(err,doc){
-			if(response=='1')
-			grp.members.push({'u_id':doc.reg,'freeslots':doc.freeslots});
-			else if(response=='2')
-			grp.reject.push(doc.reg);
-			grp.pending=grp.pending.splice(grp.pending.indexOf(doc.reg),1);
+	User.findById(user,function(err,usr){
+		Group.findById(grp,function(err,group){
+      if(!err){
+  			if(response=='1')
+  			grp.members.push({'u_id':doc.reg,'freeslots':doc.freeslots});
+  			else if(response=='2')
+  			grp.reject.push(doc.reg);
+  			grp.pending=grp.pending.splice(grp.pending.indexOf(doc.reg),1);
+        usr.groups.push(grp.id);
+      }
+      else{
+        res.status()
+      }
 		});
 	});
 	//recieve request as: {groupid:<data>,status:<code>}
@@ -112,7 +118,22 @@ router.post('/respond',function(req,res){
 
 router.post('/group_update',function(req,res){
 	var version_date=req.body.lstupdate;
+  var r_group=req.body;
+  Group.findById(r_group.groupId,function(err,grp){
+    if(!err){
+      if(grp.lstupdate)
+      res.send({'message':'updated'});
+      else
+      res.send(grp);
+    }
+    else{
+      res.status(500);
+      res.send({'message':'error'});
+    }
+  });
 });
+
+
 router.post('/message',function(req,res){
 	//recieve request as: {groupid:<data>,message:<code>}
 	//send back confirmation as <message received by server, pushed by server>
@@ -122,8 +143,6 @@ router.post('/message',function(req,res){
 router.post('/group_info_update',function(req,res){
 	//receive request as: {}
 });
-
-router.post('')
 
 module.exports = router;
 
@@ -138,7 +157,7 @@ function calcFreeSlots(user){
 	console.log(arr);
 	var free=[];
 	allSlots.forEach(function(item){
-		
+
 	});
 	for(var i=0;i<allSlots.length;i++){
 		if(arr.indexOf(allSlots[i])<0)
