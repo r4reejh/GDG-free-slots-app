@@ -72,17 +72,26 @@ router.post('/create_group',function(req,res){
 	group.admin=d.userId;
 
 	User.findById(d.userId,function(err,userobj){
-		userobj.groups.push({'name':group.name.name,'id':group.id});
+		userobj.groups.push({'name':group.name,'id':group.id});
 		group.members.push({'u_id':userobj.id,'freeslots':userobj.freeslots});
 	});
 
-	group.save(function(err,doc){
-		doc.members.forEach(function(item){
-			User.findOne({'reg':item},function(err,mem){
-				//sendNotification(mem.id);
+	group.save(function(err,grp){
+		if(!err){
+			doc.members.forEach(function(regId){
+			User.findOne({'reg':regId},function(err,mem){
+				//create group
+				//sendNotification(mem.id) to group;
+				});
 			});
-		});
-		res.send(doc.id);
+			res.status(200);
+			res.send(grp);
+		}
+		else{
+			res.status(500);
+			res.send({'error':'could not create group'});
+		}
+		
 	});
 	//get members information
 	//sendNotification(...);
@@ -93,21 +102,22 @@ router.post('/create_group',function(req,res){
 
 router.post('/respond',function(req,res){
 	var user=req.body.userId;
-	var grp=req.body.groupId;
+	var group=req.body.groupId;
 	var response=req.body.response;
 	User.findById(user,function(err,usr){
-		Group.findById(grp,function(err,group){
-      if(!err){
-  			if(response=='1')
-  			grp.members.push({'u_id':doc.reg,'freeslots':doc.freeslots});
-  			else if(response=='2')
-  			grp.reject.push(doc.reg);
-  			grp.pending=grp.pending.splice(grp.pending.indexOf(doc.reg),1);
-        usr.groups.push(grp.id);
-      }
-      else{
-        res.status()
-      }
+		Group.findById(group,function(err,grp){
+		  if(!err){
+				if(response=='1')
+				grp.members.push({'u_id':doc.reg,'freeslots':usr.freeslots});
+				else if(response=='2')
+				grp.reject.push(doc.reg);
+				grp.pending=grp.pending.splice(grp.pending.indexOf(usr.reg),1);
+				usr.groups.push(grp.id);
+		  }
+		  else{
+			res.status(500);
+			res.send({'error':'failed update'});
+		  }
 		});
 	});
 	//recieve request as: {groupid:<data>,status:<code>}
@@ -120,22 +130,25 @@ router.post('/respond',function(req,res){
 
 router.post('/group_update',function(req,res){
 	var version_date=req.body.lstupdate;
-  var r_group=req.body;
-  Group.findById(r_group.groupId,function(err,grp){
-    if(!err){
-      if(grp.lstupdate)
-      res.send({'message':'updated'});
-      else
-      res.send(grp);
-    }
-    else{
-      res.status(500);
-      res.send({'message':'error'});
-    }
-  });
+	var r_group=req.body;
+	Group.findById(r_group.groupId,function(err,grp){
+			if(!err){
+			if(grp.lstupdate)
+			res.send({'message':'updated'});
+			else{
+			  res.status(200);
+			  res.send(grp);
+			}
+		}
+		else{
+		  res.status(500);
+		  res.send({'message':'error'});
+		}
+	 });
 });
 
 module.exports = router;
+
 //----------------METHODS-----------------------------------------------
 function calcFreeSlots(user){
 	var c=user.slots.join(" ");
@@ -145,9 +158,6 @@ function calcFreeSlots(user){
 	var arr=c.split(' ');
 	console.log(arr);
 	var free=[];
-	allSlots.forEach(function(item){
-
-	});
 	for(var i=0;i<allSlots.length;i++){
 		if(arr.indexOf(allSlots[i])<0)
 		free.push(allSlots[i]);
@@ -161,3 +171,5 @@ function calcFreeSlots(user){
 		}
 	}
 }
+
+//-------------------SEND NOTIFICATION----------------------------------
