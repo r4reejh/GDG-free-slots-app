@@ -36,3 +36,12 @@ if not Latest:
 success response:{admin:'',name:'',members:[],freeslots:[],pending:[],lstup:<date>,reject:[]} STATUS:200
 error response:{error:'failed'} STATUS:500
 ```
+
+### /timetable
+```
+request body:{reg:'<registration number>'}
+success response:{slots:[],freeslots:[]} STATUS 200
+not found error response:{error:'user not found'} STATUS:404
+retrieve faliure response:{error: 'retrieve failed'} STATUS:500
+```
+

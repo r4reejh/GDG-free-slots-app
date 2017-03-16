@@ -146,9 +146,24 @@ router.post('/group_update',function(req,res){
 	 });
 });
 
+
 router.post('/timetable',function(req,res){
-	User.find({'reg':req.body.regNo},function(err,usr){
-		
+	User.find({'reg':req.body.reg}).limit(1).exec(function(err,usr){
+		if(!err){
+			if(usr){
+				res.status(200);
+				//res.send(usr);
+				res.send({'slots':usr[0].slots,'freeslots':usr[0].freeslots});
+			}
+			else{
+				res.status(404);
+				res.send({'error':'user not found'});
+			}
+		}
+		else{
+			res.status(500);
+			res.send({'error':'failed retrieve'})
+		}
 	});
 });
 
