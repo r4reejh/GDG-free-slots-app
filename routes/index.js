@@ -17,7 +17,6 @@ router.get('/', function(req, res, next) {
 router.post('/register',function(req,res){
 	var d=req.body;
 	var user;
-	// user.name=d.name;
 	User.findOne({'reg':d.reg},function(err,data){
 		if(data)
 		user=data;
@@ -26,23 +25,21 @@ router.post('/register',function(req,res){
 		unirest.post('https://myffcs.in:10443/campus/vellore/login').send({'regNo':d.reg,'psswd':d.psswd}).end(function(response){
 		if(response.status.code!='0'){
 		unirest.post('https://myffcs.in:10443/campus/vellore/refresh').send({'regNo':d.reg,'psswd':d.psswd}).end(function(re){
-			if(true/*re.body.length>6*/){
+			if(re.body.length>6){
 			var bo=re.body;
 			var len=bo.courses.length;
 			user.reg=d.reg;
 			user.name = bo.name;
 			for(var i=0;i<len;i++){
 				user.slots.push(bo.courses[i].slot);
-				//console.log(bo.courses[i].slot);
 				if(i==len-1){
 						user.save(function(err,u){
 							calcFreeSlots(u);
 							if(err)
 							console.log(err);
-							//console.log(u);
-							res.send({'user_id':u.id});
+							res.status(200);
+							res.send({'user_id':u.id,'message':'success'});
 						});
-						//console.log(user);
 				}
 			}
 		}
@@ -72,13 +69,15 @@ router.post('/create_group',function(req,res){
 	group.admin=d.userId;
 
 	User.findById(d.userId,function(err,userobj){
-		userobj.groups.push({'name':group.name,'id':group.id});
-		group.members.push({'u_id':userobj.id,'freeslots':userobj.freeslots});
+		if(userobj){
+			userobj.groups.push({'name':group.name,'id':group.id});
+			group.members.push({'u_id':userobj.id,'freeslots':userobj.freeslots});
+		}
 	});
 
 	group.save(function(err,grp){
 		if(!err){
-			doc.members.forEach(function(regId){
+			grp.members.forEach(function(regId){
 			User.findOne({'reg':regId},function(err,mem){
 				//create group
 				//sendNotification(mem.id) to group;
@@ -133,7 +132,7 @@ router.post('/group_update',function(req,res){
 	var r_group=req.body;
 	Group.findById(r_group.groupId,function(err,grp){
 			if(!err){
-			if(grp.lstupdate)
+			if(true/*grp.lstupdate*/)
 			res.send({'message':'updated'});
 			else{
 			  res.status(200);
@@ -147,16 +146,20 @@ router.post('/group_update',function(req,res){
 	 });
 });
 
+router.post('/timetable',function(req,res){
+	User.find({'reg':req.body.regNo},function(err,usr){
+		
+	});
+});
+
+
 module.exports = router;
 
 //----------------METHODS-----------------------------------------------
 function calcFreeSlots(user){
 	var c=user.slots.join(" ");
-	//console.log(c);
 	c=c.replace(/\+/g,' ');
-	//console.log(c);
 	var arr=c.split(' ');
-	//console.log(arr);
 	var free=[];
 	for(var i=0;i<allSlots.length;i++){
 		if(arr.indexOf(allSlots[i])<0)
