@@ -106,12 +106,23 @@ router.post('/respond',function(req,res){
 	User.findById(user,function(err,usr){
 		Group.findById(group,function(err,grp){
 		  if(!err){
+				grp.lstup=new Date().toISOString();
 				if(response=='1')
 				grp.members.push({'u_id':doc.reg,'freeslots':usr.freeslots});
 				else if(response=='2')
 				grp.reject.push(doc.reg);
 				grp.pending=grp.pending.splice(grp.pending.indexOf(usr.reg),1);
 				usr.groups.push(grp.id);
+				grp.save(function(er1,g){usr.save(function(er2,u){
+					if((!er1)&&(!er2)){
+						res.status(200);
+						res.send({'message':'success'});
+					}
+					else{
+						res.status(500);
+						res.send({'error':'database update failed'});
+					}
+				});});
 		  }
 		  else{
 			res.status(500);
@@ -132,7 +143,7 @@ router.post('/group_update',function(req,res){
 	var r_group=req.body;
 	Group.findById(r_group.groupId,function(err,grp){
 			if(!err){
-			if(true/*grp.lstupdate*/)
+			if(grp.lstupdate===version_date)
 			res.send({'message':'updated'});
 			else{
 			  res.status(200);
@@ -173,10 +184,19 @@ router.post('/adduser',function(req,res){
 	Group.findById({groupId},function(err,grp){
 		if(!err){
 			if(grp){
+				grp.lstup=new Date().toISOString();
 				grp.pending.push(mem_reg);
 				//sendNotificaion(...) to user
-				res.status(200);
-				res.send({'message':'success'});
+				grp.save(function(err,g){
+					if(!err){
+						res.status(200);
+						res.send({'message':'success'});
+					}
+					else{
+						res.status(500);
+						res.send({'error':'database update failed'});
+					}
+				});
 			}
 			else{
 				res.status(404)

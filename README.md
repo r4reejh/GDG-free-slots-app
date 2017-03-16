@@ -27,7 +27,7 @@ faliure response:{error: 'failed'} STATUS:500
 
 ### /group_update
 ```
-request body:{groupId:'',lstup:<Date>}
+request body:{groupId:'',lstupdate:<Date>}
 if Latest:
 success response:{message:'latest'} STATUS:200
 faliure response:{error: 'failed'} STATUS:500
