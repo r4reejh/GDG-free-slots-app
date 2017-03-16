@@ -45,3 +45,11 @@ not found error response:{error:'user not found'} STATUS:404
 retrieve faliure response:{error: 'retrieve failed'} STATUS:500
 ```
 
+### /adduser
+```
+request body:{groupId:'<groupId>',reg:'<registration number>'}
+success response:{message:'success'} STATUS 200
+not found error response:{error:'group not found'} STATUS:404
+retrieve faliure response:{error: 'retrieve failed'} STATUS:500
+```
+

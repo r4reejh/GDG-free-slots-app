@@ -167,6 +167,28 @@ router.post('/timetable',function(req,res){
 	});
 });
 
+router.post('/adduser',function(req,res){
+	var groupId=req.body.groupId;
+	var mem_reg=req.body.reg;
+	Group.findById({groupId},function(err,grp){
+		if(!err){
+			if(grp){
+				grp.pending.push(mem_reg);
+				//sendNotificaion(...) to user
+				res.status(200);
+				res.send({'message':'success'});
+			}
+			else{
+				res.status(404)
+				res.send({'error':'group not found'});
+			}
+		}
+		else{
+			res.status(500);
+			res.send({'error':'retrieve error'});
+		}
+	});
+});
 
 module.exports = router;
 
