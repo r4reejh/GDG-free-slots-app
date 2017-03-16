@@ -17,19 +17,19 @@ router.get('/', function(req, res, next) {
 router.post('/register',function(req,res){
 	var d=req.body;
 	var user;
-	user.reg=d.reg;
 	// user.name=d.name;
 	User.findOne({'reg':d.reg},function(err,data){
-		if(data.length>0)
+		if(data)
 		user=data;
 		else
 		user=new User();
 		unirest.post('https://myffcs.in:10443/campus/vellore/login').send({'regNo':d.reg,'psswd':d.psswd}).end(function(response){
-		if(response.status.code=='0'){
+		if(response.status.code!='0'){
 		unirest.post('https://myffcs.in:10443/campus/vellore/refresh').send({'regNo':d.reg,'psswd':d.psswd}).end(function(re){
-			if(re.body.length>6){
+			if(true/*re.body.length>6*/){
 			var bo=re.body;
 			var len=bo.courses.length;
+			user.reg=d.reg;
 			user.name = bo.name;
 			for(var i=0;i<len;i++){
 				user.slots.push(bo.courses[i].slot);
@@ -39,8 +39,8 @@ router.post('/register',function(req,res){
 							calcFreeSlots(u);
 							if(err)
 							console.log(err);
-							console.log(u);
-							res.send(u.id);
+							//console.log(u);
+							res.send({'user_id':u.id});
 						});
 						//console.log(user);
 				}
@@ -55,7 +55,7 @@ router.post('/register',function(req,res){
 	}
 	else{
     res.status(404);
-		res.send({'message':'failed'});
+		res.send({'message':'api failed'});
 	}
 	});
 	});
@@ -156,7 +156,7 @@ function calcFreeSlots(user){
 	c=c.replace(/\+/g,' ');
 	//console.log(c);
 	var arr=c.split(' ');
-	console.log(arr);
+	//console.log(arr);
 	var free=[];
 	for(var i=0;i<allSlots.length;i++){
 		if(arr.indexOf(allSlots[i])<0)
@@ -166,7 +166,8 @@ function calcFreeSlots(user){
 			user.save(function(err,doc){
 				if(err)
 				console.log(err);
-				console.log(doc);
+				//sconsole.log(doc);
+				//console.log(doc);
 			});
 		}
 	}
