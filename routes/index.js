@@ -210,6 +210,49 @@ router.post('/adduser',function(req,res){
 	});
 });
 
+router.post('/remove_member',function(req,res){
+	var groupId=req.body.groupId;
+	var adminId=req.body.adminId;
+	var rem_uId=req.body.user;
+	
+	Group.findById({groupId},function(err,grp){
+		if(!err && grp){
+			if(grp.admin==adminId){
+				if(grp.members.indexOf(rem_uId)>=0){
+					grp.members=grp.members.splice(grp.members.indexOf(rem_uId),1);
+					grp.save(function(err,doc){
+						if(!err){
+							res.status(200);
+							res.send({'message':'success'});
+						}
+						else{
+							res.status(500);
+							res.send({'error':'database update failed'});
+						}
+					});
+				}
+				else{
+					res.status(404);
+					res.send({'error':'not a member of group'});
+				}
+			}
+			else{
+				res.status(400);
+				res.send({'error':'unauthorised access'});
+			}
+		}
+		else if(err){
+			res.status(500);
+			res.send({'error':'retrieve failed'});	
+		}
+		else{
+			res.status(404);
+			res.send({'error':'group not found'});
+		}
+		
+	});
+});
+
 module.exports = router;
 
 //----------------METHODS-----------------------------------------------
