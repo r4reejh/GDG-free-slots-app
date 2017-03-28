@@ -35,7 +35,7 @@ router.post('/register', function (req, res) {
 		else
 			user = new User();
 		unirest.post('https://myffcs.in:10443/campus/vellore/login').send({ 'regNo': d.reg, 'psswd': d.psswd }).end(function (response) {
-			if (response.status.code != '0') {
+			if (response.body.status.code == 0) {
 				unirest.post('https://myffcs.in:10443/campus/vellore/refresh').send({ 'regNo': d.reg, 'psswd': d.psswd }).end(function (re) {
 					if (true/*re.body.length>6*/) {
 						var bo = re.body;
