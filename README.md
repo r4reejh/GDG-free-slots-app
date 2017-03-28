@@ -65,3 +65,13 @@ database update faliure: {'error':'database update failed'} STATUS:500
 retrieve faliure response:{error: 'retrieve failed'} STATUS:500
 ```
 
+### /privacy
+```
+request body:
+{
+	"reg":"<registration_number>",
+	"code":"<0=private,1=public>"
+}
+success response:{message:'changed privacy settings'} STATUS 200
+```
+
