@@ -1,7 +1,19 @@
 var express = require('express');
 var unirest = require('unirest');
+
 var router = express.Router();
 
+//Initialize the firebase app
+var admin = require("firebase-admin");
+//Make a firebase project and fill these credentials
+admin.initializeApp({
+	credential: admin.credential.cert({
+		projectId: "<PROJECT_ID>",
+		clientEmail: "foo@<PROJECT_ID>.iam.gserviceaccount.com",
+		privateKey: "-----BEGIN PRIVATE KEY-----\n<KEY>\n-----END PRIVATE KEY-----\n"
+	}),
+	databaseURL: "https://<DATABASE_NAME>.firebaseio.com"
+});
 
 var allSlots = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2', 'E1', 'E2', 'F1', 'F2', 'TA1', 'TA2', 'TB1', 'TB2', 'TC1', 'TC2', 'TD1', 'TD2', 'TE1', 'TE2', 'TF1', 'TF2'];
 var timings = {};
@@ -29,6 +41,7 @@ router.post('/register', function (req, res) {
 						var bo = re.body;
 						var len = bo.courses.length;
 						user.reg = d.reg;
+						user.fcm = d.fcm;
 						user.name = bo.name;
 						for (var i = 0; i < len; i++) {
 							user.slots.push(bo.courses[i].slot);
@@ -77,7 +90,7 @@ router.post('/create_group', function (req, res) {
 			grp.members.forEach(function (regId) {
 				User.findOne({ 'reg': regId }, function (err, mem) {
 					//create group
-					//sendNotification(mem.id) to group;
+					//sendNotification(mem.id) to group;  I dont know how to get FCM token in this case...u just have to call send notification method...CONFUSED b/w members and pendingxD
 				});
 			});
 			res.status(200);
@@ -131,7 +144,7 @@ router.post('/respond', function (req, res) {
 	});
 	//recieve request as: {groupid:<data>,status:<code>}
 	//send back response based on database result
-	//sendnotification(...)
+	//sendnotification(...)  Why do you want to send notification in this case
 	//update common free-slots
 	//send response as json to update app_local_database>groups
 });
@@ -185,7 +198,12 @@ router.post('/adduser', function (req, res) {
 			if (grp) {
 				grp.lstup = new Date().toISOString();
 				grp.pending.push(mem_reg);
-				//sendNotificaion(...) to user
+				User.findOne({reg:mem_reg},function(err,data){
+					var fcm  = data.fcm;
+					var grpName = grp.name;
+					var adminName  = grp.admin;
+					sendNotification(fcm , grpName, admin);
+				});
 				grp.save(function (err, g) {
 					if (!err) {
 						res.status(200);
@@ -273,6 +291,19 @@ function calcFreeSlots(user) {
 			});
 		}
 	}
+}
+//Give the FcmRegToken , group name and admin name 
+function sendNotification(fcm, grpname, adminName) {
+	var payload = {
+		data: "Invite for group: " + grpname + " by " + adminName
+	};
+	admin.messaging().sendToDevice(fcm, payload)
+		.then(function (response) {
+			console.log("Successfully sent message:", response);
+		})
+		.catch(function (error) {
+			console.log("Error sending message:", error);
+		});
 }
 
 //-------------------SEND NOTIFICATION----------------------------------
