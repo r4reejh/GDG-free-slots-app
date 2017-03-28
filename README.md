@@ -6,7 +6,7 @@
 
 ### /register
 ```
-request body: {name:'<name>',reg:'<regNo>',psswd:'<passwd>'}
+request body: {reg:'<regNo>',psswd:'<passwd>'}
 success response:{uid:'<mongouid>',message:'<success>'} STATUS:200
 error response:{error:'failed'} STATUS:500
 ```
