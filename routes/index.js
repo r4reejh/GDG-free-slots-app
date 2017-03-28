@@ -102,7 +102,6 @@ router.post('/create_group', function (req, res) {
 			res.status(500);
 			res.send({ 'error': 'could not create group' });
 		}
-
 	});
 	//get members information
 	//sendNotification(...);
@@ -171,6 +170,16 @@ router.post('/group_update', function (req, res) {
 	});
 });
 
+router.post('/privacy',function(req,res){
+	User.find({'reg':req.body.reg}).limit(1).exec(function(err,usr){
+		console.log(req.body.code);
+		usr[0].private=req.body.code;
+		usr[0].save(function(err,doc){
+			res.status(200);
+			res.send({'message':'changed privacy settings'});
+		});
+	});
+});
 
 router.post('/timetable', function (req, res) {
 	User.find({ 'reg': req.body.reg }).limit(1).exec(function (err, usr) {
@@ -178,7 +187,13 @@ router.post('/timetable', function (req, res) {
 			if (usr) {
 				res.status(200);
 				//res.send(usr);
-				res.send({ 'slots': usr[0].slots, 'freeslots': usr[0].freeslots });
+				console.log(usr.private);
+				if(usr[0].private=="1"){
+					res.send({ 'slots': usr[0].slots, 'freeslots': usr[0].freeslots });
+				}
+				else{
+					res.send({'message':'user has not made their timetable public'});
+				}
 			}
 			else {
 				res.status(404);

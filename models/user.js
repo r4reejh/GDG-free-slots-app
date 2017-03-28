@@ -6,7 +6,8 @@ var user=mongoose.Schema({
     fcm:{type:String},
     groups:[],
     slots:[],
-    freeslots:[]
+    freeslots:[],
+    private:{type:String,default:"0"}
 });
 
 
