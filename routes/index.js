@@ -43,9 +43,11 @@ router.post('/register', function (req, res) {
 						user.reg = d.reg;
 						user.fcm = d.fcm;
 						user.name = bo.name;
+						var slots_a=[];
 						for (var i = 0; i < len; i++) {
-							user.slots.push(bo.courses[i].slot);
+							slots_a.push(bo.courses[i].slot);
 							if (i == len - 1) {
+								user.slots=slots_a;
 								user.save(function (err, u) {
 									calcFreeSlots(u);
 									if (err)
