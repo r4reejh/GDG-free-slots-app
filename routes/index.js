@@ -172,19 +172,31 @@ router.post('/group_update', function (req, res) {
 
 router.post('/privacy',function(req,res){
 	User.find({'reg':req.body.reg}).limit(1).exec(function(err,usr){
-		console.log(req.body.code);
-		usr[0].private=req.body.code;
-		usr[0].save(function(err,doc){
-			res.status(200);
-			res.send({'message':'changed privacy settings'});
-		});
+		if(err){
+			res.status(500);
+			res.send({'message':'database retrieve err'});
+		}
+		else{
+			if(usr.length==0){
+				res.status(404);
+				res.send({'message':'user not found'});
+			}
+			else{
+				console.log(req.body.code);
+				usr[0].private=req.body.code;
+				usr[0].save(function(err,doc){
+					res.status(200);
+					res.send({'message':'changed privacy settings'});
+				});
+			}
+		}
 	});
 });
 
 router.post('/timetable', function (req, res) {
 	User.find({ 'reg': req.body.reg }).limit(1).exec(function (err, usr) {
 		if (!err) {
-			if (usr) {
+			if (usr.length>0) {
 				res.status(200);
 				//res.send(usr);
 				console.log(usr.private);
